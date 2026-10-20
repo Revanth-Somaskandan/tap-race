@@ -73,7 +73,7 @@ button.pill:hover{border-color:var(--a)}
 .s2 .blk{height:48px;background:linear-gradient(180deg,rgba(244,114,70,.7),rgba(244,114,70,.12))}
 #you{color:var(--mut);margin:6px 0 14px}
 #lb{list-style:none;padding:0;margin:0;display:grid;gap:7px}
-#lb li{position:relative;display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:12px;background:rgba(255,255,255,.05);overflow:hidden;animation:in .25s}
+#lb li{position:relative;display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:12px;background:rgba(255,255,255,.05);overflow:hidden}
 #lb li .fill{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,rgba(124,92,255,.35),transparent);transition:width .5s}
 #lb li>*{position:relative}
 #lb li.me{outline:1.5px solid var(--b);background:rgba(34,211,238,.1)}
@@ -125,6 +125,7 @@ const $=id=>document.getElementById(id);
 const S={code:"",name:"",token:"",solo:false,pending:0,fly:0,off:0,st:null,busy:false};
 const hue=n=>{let h=0;for(const c of n)h=(h*31+c.charCodeAt(0))%360;return h};
 const av=n=>`<i class="av" style="background:hsl(${hue(n)} 65% 50%)">${n[0].toUpperCase()}</i>`;
+const put=(id,h)=>{const e=$(id);if(e.dataset.h!==h){e.dataset.h=h;e.innerHTML=h}};
 const medal=i=>["🥇","🥈","🥉"][i]||i+1;
 async function api(p,b){
   const r=await fetch("/api/"+p,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(b)});
@@ -167,7 +168,7 @@ async function poll(){
 function board(s){
   const mx=Math.max(1,s.top.length?s.top[0].score:1);
   $("empty").classList.toggle("hide",s.top.length>0);
-  $("lb").innerHTML=s.top.map((p,i)=>`<li class="${p.name===S.name?"me":""}"><div class="fill" style="width:${p.score/mx*100}%"></div><span class="rk">${medal(i)}</span>${av(p.name)}<span class="nm">${p.name}</span><b>${p.score}</b></li>`).join("");
+  put("lb",s.top.map((p,i)=>`<li class="${p.name===S.name?"me":""}"><div class="fill" style="width:${p.score/mx*100}%"></div><span class="rk">${medal(i)}</span>${av(p.name)}<span class="nm">${p.name}</span><b>${p.score}</b></li>`).join(""));
   $("mine").textContent=s.me.rank>10?`You: #${s.me.rank} · ${s.me.score}`:"";
 }
 const fmt=x=>{x=Math.max(0,Math.ceil(x));return Math.floor(x/60)+":"+String(x%60).padStart(2,"0")};
@@ -181,7 +182,7 @@ function render(){
   $("host").classList.toggle("hide",!(S.token&&(m==="lobby"||m==="done")));
   $("wait").classList.toggle("hide",!!S.token);
   $("info").textContent=s.solo?"vs "+(s.players.length-1)+" bots":s.players.length+"/25 players";
-  $("pl").innerHTML=s.players.map(n=>`<li>${av(n)}<span>${n}</span><em>${n===s.host?"host":s.solo?"bot":""}</em></li>`).join("");
+  put("pl",s.players.map(n=>`<li>${av(n)}<span>${n}</span><em>${n===s.host?"host":s.solo?"bot":""}</em></li>`).join(""));
   if(m==="count")$("cd").textContent=Math.max(1,Math.ceil(s.start_at-t));
   if(m==="play"){
     const left=s.end_at-t;
@@ -192,7 +193,7 @@ function render(){
   }
   if(m==="done"){
     $("win").textContent=s.winner?`${s.winner.name} wins · ${s.winner.score}`:"";
-    $("pod").innerHTML=[1,0,2].filter(i=>s.top[i]).map(i=>`<div class="step s${i}">${av(s.top[i].name)}<b>${s.top[i].name}</b><span>${s.top[i].score}</span><div class="blk">${i+1}</div></div>`).join("");
+    put("pod",[1,0,2].filter(i=>s.top[i]).map(i=>`<div class="step s${i}">${av(s.top[i].name)}<b>${s.top[i].name}</b><span>${s.top[i].score}</span><div class="blk">${i+1}</div></div>`).join(""));
     $("you").textContent=`Your result: #${s.me.rank} · ${s.me.score} pts`;
   }
 }
